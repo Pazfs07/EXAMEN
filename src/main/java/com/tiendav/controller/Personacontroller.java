@@ -4,17 +4,19 @@
  */
 package com.tiendav.controller;
 
-import ch.qos.logback.core.model.Model;
+
 import com.tiendav.entity.Pais;
 import com.tiendav.entity.Persona;
 import com.tiendav.service.IPaisservice;
 import com.tiendav.service.IPersonaservice;
-import com.tiendav.service.Personaservice;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+
 import org.springframework.web.bind.annotation.PostMapping;
 
 /**
@@ -24,34 +26,46 @@ import org.springframework.web.bind.annotation.PostMapping;
 @Controller
 public class Personacontroller {
 
-@Autowired
-private IPersonaservice personaservice;
+    @Autowired
+    private IPersonaservice personaservice;
 
-@Autowired
-private IPaisservice paisService;
+    @Autowired
+    private IPaisservice paisService;
 
-@GetMapping ("/persona")
-public String index (Model model) {
+    @GetMapping("/persona")
+    public String index(Model model) {
+        List<Persona> listaPersona = personaservice.getAllPersona();
+        model.addAttribute("titulo", "Tabla Personas");
+        model.addAttribute("personas", listaPersona);
+        return "personas";
+
+    }
+    @GetMapping("delete/{id}")
+    public String eliminarPersona(@PathVariable("id")Long idpersona) {
+        personaservice.delete(idpersona);
+        return "redirect:/persona";
+    }
+
+    @GetMapping("/personaN")
+    public String crearPersona(Model model) {
+        List<Pais> listaPaises = paisService.listCountry();
+        model.addAttribute("persona", new Persona());
+        model.addAttribute("paises", listaPaises);
+        return "crear";
+    }
+
+    @PostMapping("/save")
+    public String guardarPersona(@ModelAttribute Persona persona) {
+        personaservice.savePersona(persona);
+        return "redirect:/persona";
+    }
     
-List<Persona> listaPersona = personaservice.getAllPersona ();
-model.addAttribute ("titulo", "Tabla Personas");
-model.addAttribute ("personas", listaPersona);
-Return "personas";
-
-}
-
-@GetMapping ("/personaN" )
-public String crearPersona (Model model) {
-    
-List<Pais> listaPaises = paisService.listCountry () :
-model.addAttribute ("persona", new Persona ()) ; 
-model.addAttribute ("paises", listaPaises) ;
-Return “crear”;
-}
-
-@PostMapping ("/save")
-public String guardarPersona (ModelAttribute Persona persona) {
-personaService. savePersona (persona) :
-Return “redirect:/persona”;
+     @GetMapping("/editpersona/{id}")
+    public String editarPersona(@PathVariable("id")Long idpersona,Model model) {
+        Persona persona = personaservice.getPersonaById(idpersona);
+        List<Pais> listaPaises = paisService.listCountry();
+        model.addAttribute("persona", new Persona());
+        model.addAttribute("paises", listaPaises);
+        return "crear";
 }
 }
